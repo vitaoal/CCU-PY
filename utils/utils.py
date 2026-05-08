@@ -7,7 +7,7 @@ from pdf2image import convert_from_path
 from PIL import Image
 from typing import List
 
-feriados = set()
+feriados: set[date] = set()
 
 def load_feriados():
     """Carrega feriados do arquivo CSV e retorna um conjunto de datas"""
@@ -27,9 +27,6 @@ def load_feriados():
                     feriados.add(d)
                 except ValueError:
                     continue
-    
-    print(f"Feriados carregados: {feriados}")
-
     return feriados
 
 def juntar_imagens_em_uma(
@@ -169,6 +166,7 @@ def is_feriado(d: date) -> bool:
         load_feriados()
     if(d in feriados):
         print(f"{d} é feriado.")
+    print("dia:", d)
     return d in feriados
 
 if feriados == set():

@@ -12,7 +12,7 @@ Library    CryptoLibrary.py
 ${ROOT}    ${CURDIR}/../..
 *** Keywords ***
 
-Abrir Navegador E Logar
+Abrir Navegador
     [Arguments]    ${CONFIG}    ${DEBUG}    ${URL}
 
     Log To Console    STEP: Logando na intranet
@@ -58,19 +58,15 @@ Abrir Navegador E Logar
     ...    ${BROWSER}
     ...    options=${options}
     ...    service_log_path=${NONE}
-    
-    Input Text      id=username    ${CONFIG["usuario"]}
-    Input Password  id=password    ${CONFIG["senha"]}
-    Click Button    id=kc-login
-
-    Log To Console    STEP: Login concluído
 
 Carregar Configuracoes
     ${json_text}=    Get File    ${ROOT}/configs/config.json
     ${config}=       Evaluate    json.loads($json_text)    json
 
     ${senha_plana}=  Decrypt    ${config["senha"]}
+    ${senha_email_plana}=  Decrypt    ${config["email"]["senha_email"]}
     Set To Dictionary    ${config}    senha=${senha_plana}
+    Set To Dictionary    ${config["email"]}    senha_email=${senha_email_plana}
 
     RETURN    ${config}
 

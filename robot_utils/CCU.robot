@@ -138,6 +138,13 @@ Coletar Horas Do Dia
 
     RETURN    ${dados_dia}
 
+Logar
+    Input Text      id=username    ${CONFIG["usuario"]}
+    Input Password  id=password    ${CONFIG["senha"]}
+    Click Button    id=kc-login
+
+    Log To Console    STEP: Login concluído
+
 *** Test Cases ***
 Setup
     Set Environment Variable    PYTHONPATH    ${ROOT}
@@ -147,8 +154,10 @@ Teste Extrair Horas CCU
     ${CONFIG}=     Carregar Configuracoes
     Set Suite Variable    ${CONFIG}
 
-    Abrir Navegador E Logar    ${CONFIG}    ${DEBUG}    URL=${CONFIG["url"]}
+    Abrir Navegador   ${CONFIG}    ${DEBUG}    URL=${CONFIG["url"]}
     
+    Logar
+
     Esperar Tela De Dias
 
     Buscar Painel Com Mes e Ano    ${DATA_PARAM}

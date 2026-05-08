@@ -23,7 +23,7 @@ def relatorio_efetivado_view(page: ft.Page) -> ft.Control:
             pg.main_sem_csv,
             pdf_entrada=pg.PDF_ENTRADA,
             mes=11,
-            ano=2025,
+            ano=2026,
             on_progress=lambda msg, prog: print(f"{msg} - {prog*100:.0f}%"),
         )
 
