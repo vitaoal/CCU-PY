@@ -1,0 +1,10 @@
+cryptography==48.0.0
+flet==0.28.3
+pdf2image==1.17.0
+pdfminer.six==20260107
+pillow==12.2.0
+PyPDF2==3.0.1
+python-dateutil==2.9.0.post0
+reportlab==4.5.1
+robotframework==7.4.2
+robotframework-seleniumlibrary==6.9.0
