@@ -8,9 +8,12 @@ from PIL import Image
 from typing import List
 
 feriados: set[date] = set()
+_feriados_carregados = False
 
 def load_feriados():
     """Carrega feriados do arquivo CSV e retorna um conjunto de datas"""
+    global _feriados_carregados
+    _feriados_carregados = True
     base_dir = os.path.dirname(os.path.abspath(__file__))
     feriados_path = os.path.join(base_dir, "..", "configs", "feriados.csv")
 
@@ -158,16 +161,78 @@ def jitter_time(base: time, minutos_range: int) -> time:
     delta = random.randint(-minutos_range, minutos_range)
     return (base_dt + timedelta(minutes=delta)).time()
 
+
+def _as_dt(hora: time) -> datetime:
+    return datetime.combine(date.today(), hora)
+
+
+def add_minutes(hora: time, minutos: int) -> time:
+    return (_as_dt(hora) + timedelta(minutes=minutos)).time()
+
+
+def jitter_para_cima(base: time, minutos_range: int) -> time:
+    if minutos_range <= 0:
+        return base
+    return add_minutes(base, random.randint(1, minutos_range))
+
+
+def formatar_hora(hora: time) -> str:
+    return hora.strftime("%H:%M")
+
+
+def normalizar_hora_digitada(valor: str) -> str:
+    texto = (valor or "").strip()
+    if not texto:
+        return ""
+
+    parts = texto.split(":")
+    if len(parts) != 2:
+        raise ValueError("Use o formato HH:MM")
+
+    hora = int(parts[0])
+    minuto = int(parts[1])
+    if hora < 0 or hora > 23 or minuto < 0 or minuto > 59:
+        raise ValueError("Use o formato HH:MM")
+    return f"{hora:02d}:{minuto:02d}"
+
+
+def desfazer_horario_britanico(
+    entrada: time,
+    intervalo_inicio: time,
+    intervalo_fim: time,
+    minutos_range: int,
+    variar_entrada: bool = True,
+) -> tuple[time, time, time, time]:
+    """
+    Mantém o intervalo configurado e gera jornada de pelo menos 8h,
+    com poucos minutos extras na saída. A entrada só varia se variar_entrada=True.
+    """
+    if minutos_range <= 0:
+        saida = (_as_dt(entrada) + (_as_dt(intervalo_fim) - _as_dt(intervalo_inicio)) + timedelta(hours=8)).time()
+        return entrada, intervalo_inicio, intervalo_fim, saida
+
+    entrada_var = jitter_para_cima(entrada, minutos_range) if variar_entrada else entrada
+    inicio_var = intervalo_inicio
+    fim_var = intervalo_fim
+
+    if _as_dt(fim_var) <= _as_dt(inicio_var):
+        fim_var = add_minutes(inicio_var, 120)
+
+    extra = timedelta(minutes=random.randint(1, minutos_range))
+    manha = _as_dt(inicio_var) - _as_dt(entrada_var)
+    restante = timedelta(hours=8) + extra - manha
+    if restante < timedelta(minutes=1):
+        restante = timedelta(minutes=random.randint(1, minutos_range))
+
+    saida_var = (_as_dt(fim_var) + restante).time()
+    return entrada_var, inicio_var, fim_var, saida_var
+
+
 def is_weekend(d: date) -> bool:
     return d.weekday() >= 5
 
 def is_feriado(d: date) -> bool:
-    if feriados == set():
+    global _feriados_carregados
+    if not _feriados_carregados:
         load_feriados()
-    if(d in feriados):
-        print(f"{d} é feriado.")
-    print("dia:", d)
     return d in feriados
-
-if feriados == set():
-    load_feriados()

@@ -148,7 +148,7 @@ def relatorio_view(page: ft.Page) -> ft.Control:
                 on_progress=atualizar_progresso
             )
             
-            await asyncio.to_thread(
+            sessao = await asyncio.to_thread(
                 pg.main,
                 pdf_entrada=pdf_entrada["path"],
                 on_progress=atualizar_progresso
@@ -163,7 +163,7 @@ def relatorio_view(page: ft.Page) -> ft.Control:
             progress_container.visible = False
             page.update()
 
-            pdf_viewer.load_images(imagens)
+            pdf_viewer.load_images(imagens, sessao=sessao)
 
         page.run_task(tarefa)
 

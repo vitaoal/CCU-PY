@@ -25,7 +25,7 @@ Abrir Navegador
         ...    sys.modules['selenium.webdriver'].ChromeOptions()    sys
 
         IF    not ${DEBUG}
-            Call Method    ${options}    add_argument    --headless=new
+            Call Method    ${options}    add_argument    --headless\=new
             Call Method    ${options}    add_argument    --disable-gpu
             Call Method    ${options}    add_argument    --disable-extensions
             Call Method    ${options}    add_argument    --disable-notifications
@@ -33,7 +33,7 @@ Abrir Navegador
             Call Method    ${options}    add_argument    --disable-dev-shm-usage
         END
 
-        Call Method    ${options}    add_argument    --window-size=1920,1080
+        Call Method    ${options}    add_argument    --window-size\=1920,1080
 
     # Configurações Específicas para Firefox
     ELSE IF    '${BROWSER}' == 'firefox'

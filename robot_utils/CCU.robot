@@ -139,6 +139,7 @@ Coletar Horas Do Dia
     RETURN    ${dados_dia}
 
 Logar
+    Wait Until Element Is Visible    id=username    10s
     Input Text      id=username    ${CONFIG["usuario"]}
     Input Password  id=password    ${CONFIG["senha"]}
     Click Button    id=kc-login

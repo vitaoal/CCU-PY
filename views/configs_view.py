@@ -58,8 +58,17 @@ def configuracoes_view(page: ft.Page) -> ft.Control:
 
     entrada_dt = TimeField(page, "Entrada")
     saida_dt = TimeField(page, "Saída")
+    intervalo_inicio_dt = TimeField(page, "Início do intervalo")
+    intervalo_fim_dt = TimeField(page, "Fim do intervalo")
 
-    range_intervalo = ft.TextField(label="Range de Intervalo", width=FIELD_WIDTH)
+    range_intervalo = ft.TextField(
+        label="Variação máxima da entrada/saída (minutos, 1 a 10)",
+        width=FIELD_WIDTH,
+    )
+    desfazer_britanico = ft.Checkbox(
+        label="Desfazer horário britânico",
+        value=False,
+    )
 
     status = ft.Text()
 
@@ -226,11 +235,26 @@ def configuracoes_view(page: ft.Page) -> ft.Control:
         horarios = config.get("horarios", {})
         entrada_dt.set_value(horarios.get("central_entrada"))
         saida_dt.set_value(horarios.get("central_saida"))
-        range_intervalo.value = horarios.get("range_intervalo", "")
+        intervalo_inicio_dt.set_value(horarios.get("intervalo_inicio") or "12:00")
+        intervalo_fim_dt.set_value(horarios.get("intervalo_fim") or "14:00")
+        bruto_var = str(horarios.get("variacao_minutos") or horarios.get("range_intervalo") or "5").strip()
+        try:
+            minutos_var = int(bruto_var)
+        except ValueError:
+            minutos_var = 5
+        range_intervalo.value = str(min(max(minutos_var, 1), 10))
+        desfazer_britanico.value = bool(horarios.get("desfazer_horario_britanico", False))
         
     # =========================================================
     # SALVAR CONFIGURAÇÃO
     # =========================================================
+    def _variacao_minutos_salva() -> str:
+        try:
+            minutos = int(str(range_intervalo.value or "5").strip())
+        except ValueError:
+            minutos = 5
+        return str(min(max(minutos, 1), 10))
+
     def salvar_config(e):
         if assinatura_tipo.value == "canvas":
             salvar_assinatura()
@@ -268,7 +292,18 @@ def configuracoes_view(page: ft.Page) -> ft.Control:
                     if saida_dt.get_value()
                     else ""
                 ),
-                "range_intervalo": range_intervalo.value,
+                "intervalo_inicio": (
+                    intervalo_inicio_dt.get_value().isoformat()
+                    if intervalo_inicio_dt.get_value()
+                    else "12:00:00"
+                ),
+                "intervalo_fim": (
+                    intervalo_fim_dt.get_value().isoformat()
+                    if intervalo_fim_dt.get_value()
+                    else "14:00:00"
+                ),
+                "range_intervalo": _variacao_minutos_salva(),
+                "desfazer_horario_britanico": bool(desfazer_britanico.value),
             },
         }
 
@@ -317,7 +352,23 @@ def configuracoes_view(page: ft.Page) -> ft.Control:
                         saida_dt,
                     ],
                 ),
+                ft.Row(
+                    spacing=16,
+                    controls=[
+                        intervalo_inicio_dt,
+                        intervalo_fim_dt,
+                    ],
+                ),
                 range_intervalo,
+                desfazer_britanico,
+                ft.Text(
+                    "O intervalo usa os horários definidos acima. "
+                    "No relatório efetivado a entrada vem do CCU; só a saída "
+                    "ganha 1 a 10 minutos a mais. Valores altos no campo de "
+                    "variação são limitados a 10 minutos.",
+                    size=12,
+                    color=ft.Colors.GREY_600,
+                ),
 
                 ft.Divider(),
                 ft.Text("Configurações de E-mail", style=TITLE_STYLE),

@@ -4,10 +4,11 @@ import sys
 import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
 ROBOT_DIR = BASE_DIR
 ROBOT_FILE = os.path.join(ROBOT_DIR, "CCU.robot")
-OUTPUT_DIR = os.path.join(ROBOT_DIR, "results")
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, "results")
 
 PROGRESS_MAP = {
     "STEP: Logando na intranet": ("Logando na intranet", 0.15),
@@ -45,7 +46,7 @@ def executar_robot(data_param: str, on_progress=None):
 
         process = subprocess.Popen(
             robot_cmd,
-            cwd=ROBOT_DIR,
+            cwd=PROJECT_ROOT,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
